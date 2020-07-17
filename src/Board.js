@@ -1,4 +1,5 @@
 import React from 'react';
+import './styles/board.css';
 
 export class ConwayBoard extends React.Component {
     onClick(id) {
@@ -16,24 +17,32 @@ export class ConwayBoard extends React.Component {
                 );
         }
 
-        const cellStyle = {
-            border: '1px solid #555',
-            width: '50px',
-            height: '50px',
-            lineHeight: '50px',
-            textAlign: 'center',
-        };
-
         let tbody = [];
         for (let i = 0; i < 5; i++) {
             let cells = [];
             for (let j = 0; j < 5; j++) {
                 const id = 5 * i + j;
-                cells.push(
-                    <td style={cellStyle} key={id} onClick={() => this.onClick(id)}>
-                        {this.props.G.cells[id]}
-                    </td>
-                );
+                switch (this.props.G.cells[id].state) {
+                    case "VOID":
+                        cells.push(
+                            <td key={id}/>
+                        );
+                        break;
+                    case "DEAD":
+                        cells.push(
+                            <td className="dead cell" key={id} onClick={() => this.onClick(id)}/>
+                        );
+                        break;
+                    case "ALIVE":
+                        cells.push(
+                            <td className="alive cell" key={id} onClick={() => this.onClick(id)}>
+                                {this.props.G.cells[id].player}
+                            </td>
+                        );
+                        break;
+                    default:
+                        console.error("Unknown state: "+this.props.G.cells[id].state);
+                }
             }
             tbody.push(<tr key={i}>{cells}</tr>);
         }
