@@ -1,6 +1,6 @@
 import React from 'react';
 
-export class TicTacToeBoard extends React.Component {
+export class ConwayBoard extends React.Component {
     onClick(id) {
         this.props.moves.clickCell(id);
     }
@@ -25,10 +25,10 @@ export class TicTacToeBoard extends React.Component {
         };
 
         let tbody = [];
-        for (let i = 0; i < 3; i++) {
+        for (let i = 0; i < 5; i++) {
             let cells = [];
-            for (let j = 0; j < 3; j++) {
-                const id = 3 * i + j;
+            for (let j = 0; j < 5; j++) {
+                const id = 5 * i + j;
                 cells.push(
                     <td style={cellStyle} key={id} onClick={() => this.onClick(id)}>
                         {this.props.G.cells[id]}

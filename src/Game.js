@@ -1,7 +1,5 @@
-import { INVALID_MOVE } from 'boardgame.io/core';
-
-export const TicTacToe = {
-    setup: () => ({ cells: Array(9).fill(null) }),
+export const ConwayGame = {
+    setup: () => (getInitialState()),
 
     turn: {
         moveLimit: 1,
@@ -9,51 +7,72 @@ export const TicTacToe = {
 
     moves: {
         clickCell: (G, ctx, id) => {
-            if (G.cells[id] !== null) {
-                return INVALID_MOVE;
+            if (G.cells[id] === null) {
+                G.cells[id] = parseInt(ctx.currentPlayer);
+            } else {
+                G.cells[id] = null;
             }
-            G.cells[id] = ctx.currentPlayer;
         }
     },
 
     endIf: (G, ctx) => {
-        if (IsVictory(G.cells)) {
-            return { winner: ctx.currentPlayer };
-        }
-        if (IsDraw(G.cells)) {
+        if (isDraw(G.cells)) {
             return { draw: true };
+        }
+        const winner = getWinner(G.cells);
+        if (winner) {
+            return { winner: winner };
         }
     },
 
     ai: {
         enumerate: (G, ctx) => {
             let moves = [];
-            for (let i = 0; i < 9; i++) {
-                if (G.cells[i] === null) {
-                    moves.push({ move: 'clickCell', args: [i] });
-                }
+            for (let i = 0; i < 25; i++) {
+                moves.push({ move: 'clickCell', args: [i] });
             }
             return moves;
         },
     },
 };
 
-// Return true if `cells` is in a winning configuration.
-function IsVictory(cells) {
-    const positions = [
-        [0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6],
-        [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]
-    ];
-
-    const isRowComplete = row => {
-        const symbols = row.map(i => cells[i]);
-        return symbols.every(i => i !== null && i === symbols[0]);
+function getInitialState() {
+    const cells = Array(25);
+    const randomPositions = [...Array(25).keys()];
+    shuffleArray(randomPositions);
+    for(let i=0; i<8; i++) {
+        cells[randomPositions[i]] = 0;
+    }
+    for(let i=8; i<16; i++) {
+        cells[randomPositions[i]] = 1;
+    }
+    for(let i=16; i<25; i++) {
+        cells[randomPositions[i]] = null;
+    }
+    return {
+        cells: cells
     };
-
-    return positions.map(isRowComplete).some(i => i === true);
 }
 
-// Return true if all `cells` are occupied.
-function IsDraw(cells) {
-    return cells.filter(c => c === null).length === 0;
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
+function getWinner(cells) {
+    let firstPlayerDead = cells.filter(c => c === 0).length === 0;
+    let secondPlayerDead = cells.filter(c => c === 1).length === 0;
+    if(firstPlayerDead) {
+        return 1;
+    } else if(secondPlayerDead) {
+        return 0;
+    }
+}
+
+function isDraw(cells) {
+    let firstPlayerDead = cells.filter(c => c === 0).length === 0;
+    let secondPlayerDead = cells.filter(c => c === 1).length === 0;
+    return firstPlayerDead && secondPlayerDead;
 }
