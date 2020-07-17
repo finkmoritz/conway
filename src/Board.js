@@ -19,29 +19,34 @@ export class ConwayBoard extends React.Component {
 
         let tbody = [];
         for (let i = 0; i < 5; i++) {
-            let cells = [];
+            const cells = [];
             for (let j = 0; j < 5; j++) {
                 const id = 5 * i + j;
+                let className = "";
+                let innerText = "";
                 switch (this.props.G.cells[id].state) {
-                    case "VOID":
-                        cells.push(
-                            <td key={id}/>
-                        );
-                        break;
                     case "DEAD":
-                        cells.push(
-                            <td className="dead cell" key={id} onClick={() => this.onClick(id)}/>
-                        );
+                        className = "dead cell";
                         break;
                     case "ALIVE":
-                        cells.push(
-                            <td className="alive cell" key={id} onClick={() => this.onClick(id)}>
-                                {this.props.G.cells[id].player}
-                            </td>
-                        );
+                        className = "alive cell";
+                        innerText = this.props.G.cells[id].player;
                         break;
                     default:
-                        console.error("Unknown state: "+this.props.G.cells[id].state);
+                }
+                if(this.props.G.lastClicked === id) {
+                    className = "clicked " + className;
+                }
+                if(className === "") {
+                    cells.push(
+                        <td key={id}/>
+                    );
+                } else {
+                    cells.push(
+                        <td className={className} key={id} onClick={() => this.onClick(id)}>
+                            {innerText}
+                        </td>
+                    );
                 }
             }
             tbody.push(<tr key={i}>{cells}</tr>);

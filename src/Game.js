@@ -12,10 +12,12 @@ export const ConwayGame = {
                 case "DEAD":
                     G.cells[id].state = "ALIVE";
                     G.cells[id].player = parseInt(ctx.currentPlayer);
+                    G.lastClicked = id;
                     break;
                 case "ALIVE":
                     G.cells[id].state = "DEAD";
                     G.cells[id].player = undefined;
+                    G.lastClicked = id;
                     break;
                 default:
             }
@@ -147,9 +149,9 @@ function getWinner(cells) {
     let firstPlayerDead = isPlayerDead(cells, 0);
     let secondPlayerDead = isPlayerDead(cells, 1);
     if(firstPlayerDead) {
-        return 1;
+        return "1";
     } else if(secondPlayerDead) {
-        return 0;
+        return "0";
     }
 }
 
