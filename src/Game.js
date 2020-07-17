@@ -3,6 +3,7 @@ export const ConwayGame = {
 
     turn: {
         moveLimit: 1,
+        onEnd: iterate,
     },
 
     moves: {
@@ -79,6 +80,66 @@ function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [array[i], array[j]] = [array[j], array[i]];
+    }
+}
+
+function iterate(G, ctx) {
+    const newCells = JSON.parse(JSON.stringify(G.cells));
+    for(let i=0; i<G.cells.length; i++) {
+        const neighbours = getNeighbours(G.cells, i);
+        const nNeighboursAlive = neighbours.filter(cell => cell.state === "ALIVE").length;
+        if(G.cells[i].state === "DEAD" && nNeighboursAlive === 3) {
+            newCells[i].state = "ALIVE";
+            let dominantPlayer = computeDominantPlayer(neighbours);
+            if(dominantPlayer !== undefined) {
+                newCells[i].player = dominantPlayer;
+            } else {
+                newCells[i].player = parseInt(ctx.currentPlayer);
+            }
+        } else if(G.cells[i].state === "ALIVE" && (nNeighboursAlive < 2 || nNeighboursAlive > 3)) {
+            newCells[i].state = "DEAD";
+            newCells[i].player = undefined;
+        }
+    }
+    G.cells = newCells;
+}
+
+function getNeighbours(cells, index) {
+    const neighbours = [];
+    for(let dx of [-1, 0, 1]) {
+        for(let dy of [-1, 0, 1]) {
+            if(dx === 0 && dy === 0) {
+                continue;
+            } else {
+                const nbr = getNeighbour(cells, index, dx, dy);
+                if(nbr !== undefined) {
+                    neighbours.push(nbr);
+                }
+            }
+        }
+    }
+    return neighbours;
+}
+
+function getNeighbour(cells, index, dx, dy) {
+    let x = index%5 + dx;
+    let y = Math.floor(index/5) + dy;
+    if(x >= 0 && x < 5 && y >= 0 && y < 5) {
+        return cells[5*y + x];
+    }
+}
+
+function computeDominantPlayer(neighbours) {
+    const playerCount = [0, 0];
+    for(let cell of neighbours) {
+        if(cell.player !== undefined) {
+            playerCount[cell.player]++;
+        }
+    }
+    if(playerCount[0] > playerCount[1]) {
+        return 0;
+    } else if(playerCount[0] < playerCount[1]) {
+        return 1;
     }
 }
 
